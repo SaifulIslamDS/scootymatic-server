@@ -21,12 +21,55 @@ async function run() {
 
     const database = client.db('scootymatic');
     const scootersCollection = database.collection('scooters');
+    const ordersCollection = database.collection('orders');
 
     // GET scooters
     app.get('/scooters', async (req, res) => {
         const cursor = scootersCollection.find({});
         const scooters = await cursor.toArray();
         res.send(scooters);
+    });
+
+    // GET scooter by ID
+    app.get('/scooters/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const scooter = await scootersCollection.findOne(query);
+      // console.log('Loading id: ', id);
+      res.send(scooter);
+
+    });
+
+
+    // GET All orders
+    app.get('/orders', async (req, res) => {
+      const cursor = ordersCollection.find({});
+      const orders = await cursor.toArray();
+      res.send(orders);
+    });
+
+    // GET order by ID
+    app.get('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const order = await ordersCollection.findOne(query);
+      // console.log('Loading id: ', id);
+      res.json(order);
+    });
+
+    // POST order 
+    app.post('/orders', async (req, res) =>{
+      const order = req.body;
+      const result = await ordersCollection.insertOne(order);
+      // console.log('order : ', order);
+      res.json(result);
+    });
+    // DELETE order
+    app.delete('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await ordersCollection.deleteOne(query);
+      res.send(result);
     });
     
   }
