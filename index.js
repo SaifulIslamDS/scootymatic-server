@@ -22,23 +22,61 @@ async function run() {
     const database = client.db('scootymatic');
     const scootersCollection = database.collection('scooters');
     const ordersCollection = database.collection('orders');
+    const reviewsCollection = database.collection('reviews');
 
-    // GET scooters
+    // GET scooters/ products
     app.get('/scooters', async (req, res) => {
         const cursor = scootersCollection.find({});
         const scooters = await cursor.toArray();
         res.send(scooters);
     });
 
-    // GET scooter by ID
+    // GET scooter / product by ID
     app.get('/scooters/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const scooter = await scootersCollection.findOne(query);
       // console.log('Loading id: ', id);
       res.send(scooter);
-
     });
+    
+    // POST scooter / product
+    app.post('/scooters', async (req, res) =>{
+      const scooter = req.body;
+      const result = await scootersCollection.insertOne(scooter);
+      // console.log('order : ', order);
+      res.json(result);
+    });
+
+    // PUT (Update) scooters
+    app.put('/scooters/:id', async (req, res) => {
+      const id = req.params.id;
+      const updatedScooter = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = {upsert: true, filter: filter};
+      const updateDoc = {
+        $set: {
+          name : updatedScooter.name,
+          image : updatedScooter.image,
+          price: updatedScooter.price,  
+          description : updatedScooter.description, 
+
+        }
+      };
+      const result = await scootersCollection.updateOne(filter, updateDoc, options); 
+      // console.log('Updating: ', id);
+      res.json(result);
+    });
+
+     // DELETE scooter
+     app.delete('/scooters/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await scootersCollection.deleteOne(query);
+      res.json(result);
+      // console.log('One product deleted containing the ID: ', result);
+    });
+
 
 
     // GET All orders
@@ -64,12 +102,36 @@ async function run() {
       // console.log('order : ', order);
       res.json(result);
     });
+
     // DELETE order
     app.delete('/orders/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await ordersCollection.deleteOne(query);
       res.send(result);
+    });
+
+    // GET reviews
+    app.get('/reviews', async (req, res) => {
+      const cursor = reviewsCollection.find({});
+      const reviews = await cursor.toArray();
+      res.send(reviews);
+    });
+
+    // GET review by ID
+    app.get('/review/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const review = await reviewsCollection.findOne(query);
+      // console.log('Loading id: ', id);
+      res.send(review);
+    });
+
+    // POST reviews
+    app.post('/reviews', async (req, res) => {
+      const newReview = req.body;
+      const result = await reviewsCollection.insertOne(newReview);
+      res.json(result);
     });
     
   }
