@@ -133,6 +133,33 @@ async function run() {
       const result = await reviewsCollection.insertOne(newReview);
       res.json(result);
     });
+
+    // PUT (Update) review
+    app.put('/reviews/:id', async (req, res) => {
+      const id = req.params.id;
+      const updatedReview = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = {upsert: true, filter: filter};
+      const updateDoc = {
+        $set: {
+          name: updatedReview.name, 
+          email: updatedReview.email,  
+          designation: updatedReview.designation,  
+          review : updatedReview.review
+        }
+      };
+      const result = await reviewsCollection.updateOne(filter, updateDoc, options); 
+      // console.log('Updating: ', id);
+      res.json(result);
+    });
+
+    // DELETE review
+    app.delete('/reviews/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await reviewsCollection.deleteOne(query);
+      res.json(result);
+    });
     
   }
   finally {
