@@ -23,6 +23,7 @@ async function run() {
     const scootersCollection = database.collection('scooters');
     const ordersCollection = database.collection('orders');
     const reviewsCollection = database.collection('reviews');
+    const usersCollection = database.collection('users');
 
     // GET scooters/ products
     app.get('/scooters', async (req, res) => {
@@ -78,30 +79,28 @@ async function run() {
     });
 
 
-
     // GET All orders
     app.get('/orders', async (req, res) => {
       const cursor = ordersCollection.find({});
       const orders = await cursor.toArray();
       res.send(orders);
     });
+    
+   /*  // GET order by email
+    app.get('/orders', async (req, res) => {
+      const email = req.query.email;
+      const query = {email: email};
+      console.log(query);
+      const cursor = ordersCollection.find(query);
+      const orders = await cursor.toArray();
+      res.json(orders);
+    }); */
 
     // GET order by ID
-    app.get('/orders', async (req, res) => {
-      const email = req.params.email;
-      const query = { email: email };
-      const orderByEmail = await ordersCollection.findOne(query);
-      // console.log('Loading id: ', id);
-      res.json(orderByEmail);
-    });
-
-    
-    // GET order by email address
     app.get('/orders/:id', async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const order = await ordersCollection.findOne(query);
-      // console.log('Loading id: ', id);
       res.json(order);
     });
 
@@ -170,6 +169,22 @@ async function run() {
       const result = await reviewsCollection.deleteOne(query);
       res.json(result);
     });
+
+    // GET users
+    app.get('/users', async (req, res) => {
+      const cursor = usersCollection.find({});
+      const users = await cursor.toArray();
+      res.send(users);
+    });
+
+    // POST users
+    app.post('/users', async (req, res) => {
+      const newUser = req.body;
+      const result = await usersCollection.insertOne(newUser);
+      res.json(result);
+    });
+
+
     
   }
   finally {
