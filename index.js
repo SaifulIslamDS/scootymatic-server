@@ -85,16 +85,6 @@ async function run() {
       const orders = await cursor.toArray();
       res.send(orders);
     });
-    
-   /*  // GET order by email
-    app.get('/orders', async (req, res) => {
-      const email = req.query.email;
-      const query = {email: email};
-      console.log(query);
-      const cursor = ordersCollection.find(query);
-      const orders = await cursor.toArray();
-      res.json(orders);
-    }); */
 
     // GET order by ID
     app.get('/orders/:id', async (req, res) => {
@@ -177,12 +167,34 @@ async function run() {
       res.send(users);
     });
 
+    // GET users
+    app.get('/users/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { email : email };
+      const user = await usersCollection.findOne(query);
+      let isAdmin = false;
+      if (user?.role === 'admin') {
+        isAdmin = true;
+      }
+      res.json({admin : isAdmin});
+    });
+
     // POST users
     app.post('/users', async (req, res) => {
       const newUser = req.body;
       const result = await usersCollection.insertOne(newUser);
       res.json(result);
     });
+
+    // PUT (Update) a user as admin
+    app.put('/users/admin', async (req, res) => {
+      const user = req.body;
+      const filter = {email : user.email};
+      const updateDoc = {$set : {role : 'admin'}};
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.json(result);
+    });
+
 
 
     
